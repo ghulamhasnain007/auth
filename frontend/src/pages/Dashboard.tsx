@@ -8,14 +8,20 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { setUser }: any = useContext(AuthContext)
+  const { setUser, setIsAuthenticated }: any = useContext(AuthContext)
   const navigate = useNavigate()
-  const logout = async() => {
-    const response = await axios.post('http://localhost:3000/api/logout', {} , { withCredentials: true})
-    console.log(response);
-    setUser(null)
-    navigate('/');    
-  }
+  const logout = async () => {
+    try {
+      await axios.post("http://localhost:3000/api/logout", {}, { withCredentials: true });
+      localStorage.clear();
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate("/");
+
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
   return (
     <div>
       <div>

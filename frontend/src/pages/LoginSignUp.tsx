@@ -27,6 +27,13 @@ const Login: React.FC = () => {
             }
         }
     }, [auth, navigate]);
+  //   useEffect(() => {
+  //     if (auth?.isAuthenticated) {
+  //         const destination = auth.isAdmin ? '/admin/dashboard' : '/dashboard';
+  //         navigate(destination, { replace: true });
+  //     }
+  // }, [auth?.isAuthenticated, auth?.isAdmin, navigate]);
+  
   const {
     register,
     handleSubmit,
@@ -42,28 +49,38 @@ const Login: React.FC = () => {
     setServerError(null);
 
     try {
-        const response = await axios.post("http://localhost:3000/api/login", { email: data.email, password: data.password }, { withCredentials: true });
-        localStorage.setItem("user", JSON.stringify(response.data.user));  // Store user info
-        console.log("token from sign in", response.data.token);
-        
-        localStorage.setItem("token", JSON.stringify(response.data.token));
-        // Optionally, set user in context here
-        auth?.setIsAuthenticated(true);  // Set auth context state
-        if (response.data.user.isAdmin) {
-          console.log("Admin")
-          navigate("/admin/dashboard");
-        } else {
-            navigate("/dashboard");
-        }
+        const response = await axios.post(
+            "http://localhost:3000/api/login",
+            { email: data.email, password: data.password },
+            { withCredentials: true }
+        );
 
-        if (!response.data.user) console.log("no user found");
-        
+        const user = response.data.user;
+        // const token = response.data.token;
+
+        // Update localStorage
+        localStorage.setItem("user", JSON.stringify(user));
+        // localStorage.setItem("token", token);
+        localStorage.setItem("token", JSON.stringify(response.data.token));
+
+        // Update AuthContext
+        auth?.setUser(user);
+        auth?.setIsAuthenticated(true);
+        auth?.setIsAdmin(user.isAdmin);
+
+        // Redirect based on role
+        if (user.isAdmin) {
+            navigate("/admin/dashboard", { replace: true });
+        } else {
+            navigate("/dashboard", { replace: true });
+        }
     } catch (error: any) {
-        setServerError(error.response?.data?.message || 'An error occurred during login.');
+        setServerError(error.response?.data?.message || "An error occurred during login.");
     } finally {
         setLoading(false);
     }
 };
+
 
 
 
