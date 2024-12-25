@@ -5,6 +5,7 @@ const config = require('../src/config/server.config.js')
 // const db = require('../src/config/db.config.js')
 const bodyParser = require('body-parser');
 const {router: userRoutes} = require('../src/routes/user.routes.js');
+const {router: todoRoutes} = require('../src/routes/todo.routes.js');
 const mysqlPool = require('../src/config/db.config.js');
 const { corsConfig } = require('../src/config/cors.config.js');
 
@@ -15,6 +16,7 @@ app.use(cors(corsConfig))
 app.use(cookieParser())
 app.use(bodyParser.json());
 app.use('/api', userRoutes)
+app.use('/api/todos', todoRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err);
